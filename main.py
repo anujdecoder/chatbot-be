@@ -1,27 +1,16 @@
-import firebase_admin
-
 from typing import Union
-from fastapi import FastAPI
-from firebase_admin import credentials
-from firebase_admin import firestore
 
+from fastapi import FastAPI
+
+from app.store.auth import get_user
 
 app = FastAPI()
 
-cred = credentials.Certificate("keys.json")
-firebase_admin.initialize_app(cred)
-db = firestore.client()
 
 @app.get("/")
 async def read_root():
-    doc_ref = db.collection('chats').document('user-1')
-    doc = doc_ref.get()
-    if doc.exists:
-        return {
-            "name": doc.to_dict().get("name")
-        }
-
-    return {"error": "not-exists"}
+    user = get_user('user-1')
+    return user.model_dump()
 
 
 @app.get("/items/{item_id}")

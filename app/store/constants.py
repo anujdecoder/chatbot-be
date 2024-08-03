@@ -1,0 +1,2 @@
+BASE_COLLECTION = "users"
+MESSAGE_COLLECTION = "messages"
