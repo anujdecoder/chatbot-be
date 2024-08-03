@@ -10,7 +10,7 @@ app = FastAPI()
 @app.get("/")
 async def read_root():
     user = get_user('user-1')
-    return user.model_dump()
+    return user
 
 
 @app.get("/items/{item_id}")
