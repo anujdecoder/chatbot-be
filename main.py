@@ -1,3 +1,4 @@
+import time
 from typing import Union
 
 from fastapi import FastAPI
@@ -35,6 +36,7 @@ def get_messages(first: int, after: Union[str, None] = None):
 
 @app.post('/messages')
 def send_message(message: Message):
+    message.id = str(time.time())
     return create_message(message)
 
 
