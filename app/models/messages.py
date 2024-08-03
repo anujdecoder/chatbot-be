@@ -6,4 +6,3 @@ class Message(BaseModel):
     user_id: str
     user_sent: bool
     body: str
-    createdOn: int

@@ -1,8 +1,8 @@
-from typing import Union
-
 from fastapi import FastAPI
 
-from app.store.auth import get_user
+from app.models.messages import Message
+from app.models.users import User
+from app.store.auth import get_user, signup
 
 app = FastAPI()
 
@@ -13,6 +13,11 @@ async def read_root():
     return user
 
 
-@app.get("/items/{item_id}")
-async def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+@app.post("/signup")
+async def read_item(user: User):
+    return signup(user, Message(**{
+        'id': 'message-1',
+        'user_id': user.id,
+        'user_sent': False,
+        'body': 'Hello! How may I help you today?'
+    }))
