@@ -27,3 +27,12 @@ class MessageEdge(BaseModel):
 class ListMessagesResponse(BaseModel):
     pages: list[MessageEdge]
     pageParams: PageInfo
+
+
+def convert_message(message: Message):
+    return MessageEdge(
+        id=message.id,
+        body=message.body,
+        userId=message.user_id,
+        userSent=message.user_sent,
+    )

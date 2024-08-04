@@ -8,7 +8,7 @@ from firebase_admin import auth
 from src.config.api import app
 from src.config.logger import logger
 from src.middlewares.auth import validate_request
-from src.models.messages import Message, MessageBody, ListMessagesResponse, PageInfo, MessageEdge
+from src.models.messages import Message, MessageBody, ListMessagesResponse, PageInfo, MessageEdge, convert_message
 from src.services.responses import generate_response
 from src.store.messages import list_messages, update_message, create_message, delete_message
 
@@ -96,7 +96,7 @@ def send_message(
         logger.error("Error while creating messages", str(e))
         raise HTTPException(status_code=500, detail="Internal server error")
 
-    return received
+    return [convert_message(sent), convert_message(received)]
 
 
 @app.put("/messages/{message_id}")
