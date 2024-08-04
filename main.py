@@ -1,4 +1,3 @@
-import logging
 import time
 from typing import Annotated, Union
 
@@ -6,21 +5,11 @@ from fastapi import Header, HTTPException
 from firebase_admin import auth
 
 from src.config.api import app
+from src.config.logger import logger
 from src.middlewares.auth import validate_request
 from src.models.messages import Message, MessageBody
 from src.services.responses import generate_response
 from src.store.messages import list_messages, update_message, create_message, delete_message
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler()  # Log to standard output (console)
-    ]
-)
-
-logger = logging.getLogger(__name__)
 
 
 @app.get('/messages')
@@ -34,13 +23,14 @@ def get_messages(
         validate_request(x_token, x_user_id)
     except Exception as e:
         raise e
+
     if after is None:
         after = ''
 
     try:
         return list_messages(x_user_id, first, after)
     except Exception as e:
-        logger.error("Error while reading messages", e)
+        logger.error("Error while reading messages", str(e))
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
@@ -71,7 +61,7 @@ def send_message(
     try:
         create_message(sent, received)
     except Exception as e:
-        logger.error("Error while creating messages", e)
+        logger.error("Error while creating messages", str(e))
         raise HTTPException(status_code=500, detail="Internal server error")
 
     return received
@@ -92,7 +82,7 @@ def read_item(
     try:
         return update_message(message_id, message.body, x_user_id)
     except Exception as e:
-        logger.error("Error while reading messages", e)
+        logger.error("Error while updating messages", str(e))
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
@@ -110,7 +100,7 @@ def delete_item(
     try:
         return delete_message(message_id, x_user_id)
     except Exception as e:
-        logger.error("Error while reading messages", e)
+        logger.error("Error while deleting messages", str(e))
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
