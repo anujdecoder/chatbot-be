@@ -6,11 +6,18 @@ from src.models.messages import Message
 from src.store.constants import BASE_COLLECTION, MESSAGE_COLLECTION, ID_KEY
 
 
-def create_message(message: Message):
-    message_ref = db.collection(BASE_COLLECTION).document(message.user_id).collection(MESSAGE_COLLECTION).document(
-        message.id)
-    message_dict = message.model_dump()
-    message_ref.set(message_dict)
+def create_message(s: Message, r: Message):
+    coll_ref = db.collection(BASE_COLLECTION).document(s.user_id).collection(MESSAGE_COLLECTION)
+
+    batch = db.batch()
+
+    message_ref = coll_ref.document(s.id)
+    batch.set(message_ref, s.model_dump())
+
+    message_ref = coll_ref.document(r.id)
+    batch.set(message_ref, r.model_dump())
+
+    batch.commit()
 
 
 def update_message(message_id: str, message_body: str, user_id: str):

@@ -8,5 +8,5 @@ class Message(BaseModel):
     body: str
 
 
-class CreateMessageRequest(BaseModel):
+class MessageBody(BaseModel):
     body: str
