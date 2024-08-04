@@ -6,3 +6,7 @@ class Message(BaseModel):
     user_id: str
     user_sent: bool
     body: str
+
+
+class CreateMessageRequest(BaseModel):
+    body: str

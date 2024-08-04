@@ -1,4 +1,4 @@
-# This file handles the configuration and initialization of firebase services
+# This file handles the configuration and initialization of config services
 import firebase_admin
 
 from firebase_admin import credentials

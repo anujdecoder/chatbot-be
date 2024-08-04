@@ -1,9 +1,9 @@
 from firebase_admin import firestore
 from google.cloud.firestore_v1 import FieldFilter
 
-from app.models.messages import Message
-from app.store.constants import BASE_COLLECTION, MESSAGE_COLLECTION, ID_KEY
-from firebase.config import db
+from src.config.firebase import db
+from src.models.messages import Message
+from src.store.constants import BASE_COLLECTION, MESSAGE_COLLECTION, ID_KEY
 
 
 def create_message(message: Message):
