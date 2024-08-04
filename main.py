@@ -7,7 +7,7 @@ from firebase_admin import auth
 from src.config.api import app
 from src.config.logger import logger
 from src.middlewares.auth import validate_request
-from src.models.messages import Message, MessageBody
+from src.models.messages import Message, MessageBody, ListMessagesResponse, PageInfo, MessageEdge
 from src.services.responses import generate_response
 from src.store.messages import list_messages, update_message, create_message, delete_message
 
@@ -28,10 +28,29 @@ def get_messages(
         after = ''
 
     try:
-        return list_messages(x_user_id, first, after)
+        messages = list_messages(x_user_id, first + 1, after)
     except Exception as e:
         logger.error("Error while reading messages", str(e))
         raise HTTPException(status_code=500, detail="Internal server error")
+
+    page_params = PageInfo(hasMore=False, cursor="")
+    target = messages
+    if len(messages) > first:
+        page_params.hasMore = True
+        target = messages[:len(messages) - 1]
+
+    edges = []
+    for m in target:
+        edges.append(MessageEdge(
+            id=m.id,
+            body=m.body,
+            userId=m.user_id,
+            userSent=m.user_sent,
+        ))
+    if len(edges) > 0:
+        page_params.cursor = edges[len(edges) - 1].id
+
+    return ListMessagesResponse(pages=edges, pageParams=page_params)
 
 
 @app.post('/messages')

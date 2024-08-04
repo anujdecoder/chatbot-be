@@ -10,3 +10,20 @@ class Message(BaseModel):
 
 class MessageBody(BaseModel):
     body: str
+
+
+class PageInfo(BaseModel):
+    hasMore: bool
+    cursor: str
+
+
+class MessageEdge(BaseModel):
+    id: str
+    userId: str
+    userSent: bool
+    body: str
+
+
+class ListMessagesResponse(BaseModel):
+    pages: list[MessageEdge]
+    pageParams: PageInfo
