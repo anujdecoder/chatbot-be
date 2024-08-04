@@ -2,6 +2,7 @@ import time
 from typing import Annotated, Union
 
 from fastapi import Header, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from firebase_admin import auth
 
 from src.config.api import app
@@ -10,6 +11,18 @@ from src.middlewares.auth import validate_request
 from src.models.messages import Message, MessageBody, ListMessagesResponse, PageInfo, MessageEdge
 from src.services.responses import generate_response
 from src.store.messages import list_messages, update_message, create_message, delete_message
+
+origins = [
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get('/messages')
