@@ -14,8 +14,7 @@ from src.services.responses import generate_response
 
 origins = [
     "http://localhost:3000",
-    "https://ava-chatbot-f2551.ew.r.appspot.com",
-    "https://chatbot-be.ew.r.appspot.com"
+    "https://ava-chatbot-f2551.web.app"
 ]
 
 app.add_middleware(
