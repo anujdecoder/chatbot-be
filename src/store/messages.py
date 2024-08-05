@@ -1,3 +1,5 @@
+import time
+
 from firebase_admin import firestore
 from google.cloud.firestore_v1 import FieldFilter
 
@@ -12,10 +14,14 @@ def create_message(s: Message, r: Message):
     batch = db.batch()
 
     message_ref = coll_ref.document(s.id)
-    batch.set(message_ref, s.model_dump())
+    dump = s.model_dump()
+    dump['created_on'] = time.time()
+    batch.set(message_ref, dump)
 
     message_ref = coll_ref.document(r.id)
-    batch.set(message_ref, r.model_dump())
+    dump = r.model_dump()
+    dump['created_on'] = time.time()
+    batch.set(message_ref, dump)
 
     batch.commit()
 
@@ -23,13 +29,13 @@ def create_message(s: Message, r: Message):
 def update_message(message_id: str, message_body: str, user_id: str):
     message_ref = db.collection(BASE_COLLECTION).document(user_id).collection(MESSAGE_COLLECTION).document(
         message_id)
-    message_ref.update({'body': message_body})
+    message_ref.update({'body': message_body, 'updated_on': time.time()})
 
 
 def delete_message(message_id: str, user_id: str):
     message_ref = db.collection(BASE_COLLECTION).document(user_id).collection(MESSAGE_COLLECTION).document(
         message_id)
-    message_ref.update({'body': 'This message has been deleted'})
+    message_ref.update({'body': 'This message has been deleted', 'deleted_on': time.time(), 'deleted': True})
 
 
 def list_messages(user_id: str, page_size: int, cursor: str = ''):
@@ -43,6 +49,8 @@ def list_messages(user_id: str, page_size: int, cursor: str = ''):
     docs = query.stream()
     messages = []
     for doc in docs:
-        messages.append(Message(**doc.to_dict()))
+        dd = doc.to_dict()
+        m = Message(**dd)
+        messages.append(m)
 
     return messages

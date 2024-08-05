@@ -5,12 +5,12 @@ import uvicorn
 from fastapi import Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+import src.store.messages
 from src.config.api import app
 from src.config.logger import logger
 from src.middlewares.auth import validate_request
-from src.models.messages import Message, MessageBody, ListMessagesResponse, PageInfo, MessageEdge, convert_message
+from src.models.messages import Message, MessageBody, ListMessagesResponse, PageInfo, convert_message
 from src.services.responses import generate_response
-from src.store.messages import list_messages, update_message, create_message, delete_message
 
 origins = [
     "http://localhost:3000",
@@ -26,7 +26,7 @@ app.add_middleware(
 
 
 @app.get('/messages')
-def get_messages(
+def list_messages(
         x_user_id: Annotated[str, Header()],
         x_token: Annotated[str, Header()],
         first: int,
@@ -41,7 +41,7 @@ def get_messages(
         after = ''
 
     try:
-        messages = list_messages(x_user_id, first + 1, after)
+        messages = src.store.messages.list_messages(x_user_id, first + 1, after)
     except Exception as e:
         logger.error("Error while reading messages", str(e))
         raise HTTPException(status_code=500, detail="Internal server error")
@@ -54,12 +54,7 @@ def get_messages(
 
     edges = []
     for m in target:
-        edges.append(MessageEdge(
-            id=m.id,
-            body=m.body,
-            userId=m.user_id,
-            userSent=m.user_sent,
-        ))
+        edges.append(convert_message(m))
     if len(edges) > 0:
         page_params.cursor = edges[len(edges) - 1].id
 
@@ -91,7 +86,7 @@ def send_message(
     )
 
     try:
-        create_message(sent, received)
+        src.store.messages.create_message(sent, received)
     except Exception as e:
         logger.error("Error while creating messages", str(e))
         raise HTTPException(status_code=500, detail="Internal server error")
@@ -100,7 +95,7 @@ def send_message(
 
 
 @app.put("/messages/{message_id}")
-def read_item(
+def update_message(
         x_user_id: Annotated[str, Header()],
         x_token: Annotated[str, Header()],
         message_id: str,
@@ -112,14 +107,14 @@ def read_item(
         raise e
 
     try:
-        return update_message(message_id, message.body, x_user_id)
+        return src.store.messages.update_message(message_id, message.body, x_user_id)
     except Exception as e:
         logger.error("Error while updating messages", str(e))
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @app.delete("/messages/{message_id}")
-def delete_item(
+def delete_message(
         x_user_id: Annotated[str, Header()],
         x_token: Annotated[str, Header()],
         message_id: str,
@@ -130,7 +125,7 @@ def delete_item(
         raise e
 
     try:
-        return delete_message(message_id, x_user_id)
+        return src.store.messages.delete_message(message_id, x_user_id)
     except Exception as e:
         logger.error("Error while deleting messages", str(e))
         raise HTTPException(status_code=500, detail="Internal server error")

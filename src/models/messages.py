@@ -1,3 +1,5 @@
+from typing import Union
+
 from pydantic import BaseModel
 
 
@@ -6,6 +8,7 @@ class Message(BaseModel):
     user_id: str
     user_sent: bool
     body: str
+    deleted: Union[bool, None] = None
 
 
 class MessageBody(BaseModel):
@@ -22,6 +25,7 @@ class MessageEdge(BaseModel):
     userId: str
     userSent: bool
     body: str
+    deleted: Union[bool, None] = None
 
 
 class ListMessagesResponse(BaseModel):
@@ -35,4 +39,5 @@ def convert_message(message: Message):
         body=message.body,
         userId=message.user_id,
         userSent=message.user_sent,
+        deleted=message.deleted,
     )
