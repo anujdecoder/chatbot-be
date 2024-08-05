@@ -8,13 +8,14 @@ from fastapi.middleware.cors import CORSMiddleware
 
 import src.store.messages
 from src.config.api import app
-from src.config.logger import logger
 from src.middlewares.auth import validate_request
 from src.models.messages import Message, MessageBody, ListMessagesResponse, PageInfo, convert_message
 from src.services.responses import generate_response
 
 origins = [
     "http://localhost:3000",
+    "https://ava-chatbot-f2551.ew.r.appspot.com",
+    "https://chatbot-be.ew.r.appspot.com"
 ]
 
 app.add_middleware(
@@ -44,7 +45,6 @@ def list_messages(
     try:
         messages = src.store.messages.list_messages(x_user_id, first + 1, after)
     except Exception as e:
-        logger.error("Error while reading messages", str(e))
         raise HTTPException(status_code=500, detail="Internal server error")
 
     page_params = PageInfo(hasMore=False, cursor="")
@@ -89,7 +89,6 @@ def send_message(
     try:
         src.store.messages.create_message(sent, received)
     except Exception as e:
-        logger.error("Error while creating messages", str(e))
         raise HTTPException(status_code=500, detail="Internal server error")
 
     return [convert_message(sent), convert_message(received)]
@@ -110,7 +109,6 @@ def update_message(
     try:
         return src.store.messages.update_message(message_id, message.body, x_user_id)
     except Exception as e:
-        logger.error("Error while updating messages", str(e))
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
@@ -128,7 +126,6 @@ def delete_message(
     try:
         return src.store.messages.delete_message(message_id, x_user_id)
     except Exception as e:
-        logger.error("Error while deleting messages", str(e))
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
